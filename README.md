@@ -10,19 +10,43 @@ ContextVision looks for everyday objects that might be out of place in a scene. 
 
 See the [flowchart](docs/workflow.md) and [project report](Context_Anomaly_Project_Report.pdf) for details.
 
-## Dataset and setup
+## Dataset
 
-The annotated dataset has 531 training images and 20 validation images. Download the [project archive and dataset](https://github.com/suhas-2007/ContextVision/releases/tag/project-files). It includes the detector, context selector and memory bank. The script reads these files directly from the ZIP.
+The annotated dataset has 531 training images and 20 validation images. The [dataset release](https://github.com/suhas-2007/ContextVision/releases/tag/project-files) also includes the trained detector, context selector and memory bank.
 
-Run these commands from the repository folder. CLIP weights download on the first run.
+## How to run it
+
+1. Clone the repo and open its folder in a terminal.
+
+   ```sh
+   git clone https://github.com/suhas-2007/ContextVision.git
+   cd ContextVision
+   ```
+
+2. Download [ContextVision-project-files.zip](https://github.com/suhas-2007/ContextVision/releases/download/project-files/ContextVision-project-files.zip) and put it next to `context_anomaly.py`. Leave it zipped.
+
+3. Install the packages.
+
+   ```sh
+   python -m pip install -r requirements.txt
+   ```
+
+4. Run the demo. The first run downloads the CLIP weights, so it takes a bit longer.
+
+   ```sh
+   python context_anomaly.py --archive ContextVision-project-files.zip
+   ```
+
+Open `context_results/demo.jpg` to see the boxes and `context_results/demo.json` to read the scores.
+
+To try your own image or rerun validation, use one of these commands:
 
 ```sh
-python -m pip install -r requirements.txt
-python context_anomaly.py --archive ContextVision-project-files.zip
+python context_anomaly.py --archive ContextVision-project-files.zip --image "path/to/your-image.jpg"
 python context_anomaly.py --archive ContextVision-project-files.zip --evaluate
 ```
 
-Pass `--image path/to/image.jpg` to try your own image. The script saves annotated images and scores in `context_results/`.
+Replace the example image path with your file. Validation writes `context_results/validation.json` and an annotated image for each input.
 
 ## Results
 
