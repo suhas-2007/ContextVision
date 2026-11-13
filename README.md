@@ -1,21 +1,40 @@
 # ContextVision
 
-ContextVision detects everyday objects and scores how well each detection fits its surroundings. It uses YOLO11s-OBB, CLIP ViT-B/32, a trained context selector, and Hopfield memory.
+ContextVision looks for everyday objects that might be out of place in a scene. It detects screwdrivers, combs, knives, pens and toothbrushes.
 
-## Run
+## How it works
 
-Install the Python dependencies and place the supplied `Hopfield networks.zip` next to `context_anomaly.py`. The archive contains the detector and selector weights, the context memory, and the validation images. CLIP weights download on first use.
+1. YOLO11s-OBB predicts a class and a rotated box.
+2. CLIP embeds four views around the box. A trained attention model picks the view to use. For one detection, the program uses the full image.
+3. A Hopfield memory retrieves vectors for the selected view and the class name. The script flags a box when their cosine similarity is 0.90 or lower.
+
+See the [flowchart](docs/workflow.md) and [project report](Context_Anomaly_Project_Report.pdf) for details.
+
+## Dataset and setup
+
+The annotated dataset has 531 training images and 20 validation images. Download the [project archive and dataset](https://github.com/suhas-2007/ContextVision/releases/tag/project-files). It includes the detector, context selector and memory bank. The script reads these files directly from the ZIP.
+
+Run these commands from the repository folder. CLIP weights download on the first run.
 
 ```sh
-python -m pip install torch torchvision ultralytics openai-clip
-python context_anomaly.py
-python context_anomaly.py --evaluate
+python -m pip install -r requirements.txt
+python context_anomaly.py --archive ContextVision-project-files.zip
+python context_anomaly.py --archive ContextVision-project-files.zip --evaluate
 ```
 
-The script saves annotated images and JSON results in `context_results/`. Pass `--image path/to/image.jpg` to try your own image.
+Pass `--image path/to/image.jpg` to try your own image. The script saves annotated images and scores in `context_results/`.
 
-## Validation
+## Results
 
-On 20 validation images at input size 256, the detector matched 16 of 22 labelled objects using same-class polygon IoU of at least 0.50. The context stage flagged 7 detections at the 0.90 similarity cutoff. The validation labels cover classes and boxes. Anomaly accuracy was not measured.
+| Detector input size | Matched boxes out of 22 | Precision | Recall | Flagged detections |
+| --- | ---: | ---: | ---: | ---: |
+| 256 | 16 | 72.7% | 72.7% | 7 |
+| 896 | 3 | 7.7% | 13.6% | 19 |
 
-See [the project report](Context_Anomaly_Project_Report.pdf) for the model and experiment details.
+A match required the correct class and at least 0.50 overlap by rotated polygon IoU. Both runs used a confidence threshold of 0.25. The validation set has object labels only, so the flag count does not measure anomaly accuracy.
+
+[Example output](reports/example-output.jpg) · [256 run](reports/validation-256.json) · [896 run](reports/validation-896.json)
+
+## Team
+
+Spurjan, Madhav and Suhas
